@@ -1,14 +1,15 @@
-﻿using System;
+﻿using InsideTradeRegistry.Api;
+using System.Linq;
 
-using Insynsregistret.Api;
-
-namespace Insynsregistret.SampleApp
+namespace InsideTradeRegistry.SampleApp
 {
     class Program
     {
-        static void Main(string[] args)
-        {
-            Console.WriteLine("Hello World!");
+        static  void Main(string[] args)
+        {           
+            IInsideTradeRegistryApi api = new InsideTradeRegistryApi();
+
+            var transactions = api.GetInsideTradeTransactionsAsync(new SearchQuery ( issuer:"Investor", person: "Johan Forssell")).GetAwaiter().GetResult();
         }
     }
 }

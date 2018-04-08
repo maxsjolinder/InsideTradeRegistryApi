@@ -1,6 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Insynsregistret.Api.Test
+namespace InsideTradeRegistry.Api.Test
 {
     [TestClass]
     public class UnitTest1
