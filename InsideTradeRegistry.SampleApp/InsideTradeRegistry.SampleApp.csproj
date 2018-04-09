@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Insynsregistret.Api\InsideTradeRegistry.Api.csproj" />
+    <ProjectReference Include="..\InsideTradeRegistry.Api\InsideTradeRegistry.Api.csproj" />
   </ItemGroup>
 
 </Project>
