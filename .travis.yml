@@ -1,8 +1,8 @@
 language: csharp
-solution: InsynsregistretAPI.sln
+solution: InsideTradeRegistry.sln
 mono: none
 dotnet: 2.1.4
 script:
  - dotnet build
- - dotnet test Insynsregistret.Api.Test/
+ - dotnet test InsideTradeRegistry.Api.Test/
 
