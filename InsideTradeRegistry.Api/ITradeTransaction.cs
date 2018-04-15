@@ -31,8 +31,8 @@ namespace InsideTradeRegistry.Api
         string Instrument { get; set; }
         
         string ISIN { get; set; }
-        
-        string TransactionDate { get; set; }
+
+        DateTime TransactionDate { get; set; }
         
         int Volume { get; set; }
         

@@ -1,5 +1,4 @@
 using System;
-using System.Globalization;
 
 namespace InsideTradeRegistry.Api
 {
@@ -47,8 +46,8 @@ namespace InsideTradeRegistry.Api
         [DataColumn(Name = "ISIN")]
         public string ISIN { get; set; }
 
-        [DataColumn(Name = "Transaction date")]
-        public string TransactionDate { get; set; }
+        [DataColumn(Name = "Transaction date", CultureToUse = "en-GB")]
+        public DateTime TransactionDate { get; set; }
 
         [DataColumn(Name = "Volume")]
         public int Volume { get; set; }

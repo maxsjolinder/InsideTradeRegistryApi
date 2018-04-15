@@ -1,5 +1,4 @@
 using System;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Text;
 using System.Collections.Generic;
@@ -7,10 +6,12 @@ using System.Reflection;
 using System.Linq;
 using System.Globalization;
 using System.Threading;
+using InsideTradeRegistry.Api.Parser;
+using InsideTradeRegistry.Api.HttpClient;
 
 namespace InsideTradeRegistry.Api
 {
-    internal class InsideTradeRegistryHttpClient
+    internal class InsideTradeRegistryService
     {
         private struct HeaderTypeMapping
         {
@@ -19,10 +20,13 @@ namespace InsideTradeRegistry.Api
             public int ColumnIndex { get; set; }
             public IFormatProvider FormatProvider { get; set; }
         }
-        private static readonly HttpClient httpClient = new HttpClient();
+        private static IInsideTradeRegistryHttpClient httpClient;
+        private IParser csvParser;
 
-        internal InsideTradeRegistryHttpClient()
+        internal InsideTradeRegistryService(IInsideTradeRegistryHttpClient client)
         {
+            httpClient = client;
+            csvParser = new SimpleCsvParser();
         }
 
         public async Task<IList<ITradeTransaction>> GetInsideTradeTransactionsAsync(SearchQuery searchQuery)
@@ -31,71 +35,71 @@ namespace InsideTradeRegistry.Api
 
             return await GetTransationsAsync(url);
         }
-
-        //TODO implement better csv parser supporting "" strings and """" strings.
+        
         private async Task<IList<ITradeTransaction>> GetTransationsAsync(string url)
         {
             var byteArray = await httpClient.GetByteArrayAsync(url);
-            var unicodeString = Encoding.Unicode.GetString(byteArray);
-            var dataLines = unicodeString.Split(new[] { "\r\n" }, StringSplitOptions.None);
+            var unicodeString = Encoding.Unicode.GetString(byteArray);            
+            var parsedData = csvParser.ParseData(unicodeString);
 
-            if (dataLines.Count() < 2)
+            if (parsedData.Count() < 2)
             {
                 // No transactions exist
                 return new List<ITradeTransaction>();
             }
 
-            var headerTexts = dataLines[0].TrimEnd(';').Split(';');
-            var mappings = BuildCsvHeaderToTypeMappings(headerTexts);
+            var headerElements = parsedData[0];
+            var mappings = BuildCsvHeaderToTypeMappings(headerElements);
 
             var transactions = new List<ITradeTransaction>();
-            for (int i = 1; i < dataLines.Count(); i++)
+            for (int i = 1; i < parsedData.Count(); i++)
             {
-                var dataLine = dataLines[i].TrimEnd(';');
-                if (dataLine.Length == 0)
-                    continue;
+                var dataLine = parsedData[i];
+                if(headerElements.Count != dataLine.Count)
+                {
+                    // TODO: is this needed? 
+                    throw new InvalidTradeDataException("Unable to parse Finansinspektionen trade data. Header and data have different sizes.");
+                }
 
-                var dataElements = dataLine.Split(';');
-
-                var transaction = CreateTradeTransaction(dataElements, mappings);
+                var transaction = CreateTradeTransaction(dataLine, mappings);
                 transactions.Add(transaction);
             }
 
             return transactions;
         }
 
-        private TradeTransaction CreateTradeTransaction(string[] data, List<HeaderTypeMapping> mappings)
+        private TradeTransaction CreateTradeTransaction(IList<string> data, List<HeaderTypeMapping> mappings)
         {
-            if (data.Length != mappings.Count)
+            if (data.Count != mappings.Count)
             {
-                // TODO Remove check when code is stable
-                throw new ArgumentException("Arguments have different size.");
+                // TODO: is this needed?
+                throw new InvalidTradeDataException("Mappings and data have different sizes.");
             }
 
             var transaction = new TradeTransaction();
             foreach (var mapping in mappings)
             {
+                var dataAsString = data[mapping.ColumnIndex];
                 try
-                {
-                    var dataAsString = data[mapping.ColumnIndex];
+                {                 
                     var typedData = Convert.ChangeType(dataAsString, mapping.PropertyInfo.PropertyType, mapping.FormatProvider);
                     mapping.PropertyInfo.SetValue(transaction, typedData);
                 }
-                catch (InvalidCastException ex)
+                catch (Exception ex)
                 {
-                    // TODO Add error handling
-                }
-                catch (FormatException ex)
-                {
-                    // TODO Add error handling
-                }
+                    if (ex is InvalidCastException || ex is FormatException)
+                    {
+                        throw new InvalidTradeDataException($"Unable to convert string value \"{dataAsString}\" into {mapping.PropertyInfo.PropertyType} type.", ex);
+                    }
 
+                    throw;
+                }
             }
             return transaction;
         }
 
 
-        private List<HeaderTypeMapping> BuildCsvHeaderToTypeMappings(string[] headerStrings)
+        private List<HeaderTypeMapping> BuildCsvHeaderToTypeMappings(IList<string> headerStrings)
         {
             var transactionType = typeof(TradeTransaction);
             var allClassProperties = transactionType.GetProperties(BindingFlags.Public | BindingFlags.Instance);

@@ -1,21 +1,21 @@
-using System;
+using InsideTradeRegistry.Api.HttpClient;
 using System.Collections.Generic;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace InsideTradeRegistry.Api
 {
     public class InsideTradeRegistryApi : IInsideTradeRegistryApi
     {
-        InsideTradeRegistryHttpClient insideTradeHttpClient;
+        private InsideTradeRegistryService insideTradeService;
+
         public InsideTradeRegistryApi()
         {
-            insideTradeHttpClient = new InsideTradeRegistryHttpClient();
+            insideTradeService = new InsideTradeRegistryService(new InsideTradeRegistryHttpClient());
         }
 
         public Task<IList<ITradeTransaction>> GetInsideTradeTransactionsAsync(SearchQuery searchQuery)
         {
-            return insideTradeHttpClient.GetInsideTradeTransactionsAsync(searchQuery);
+            return insideTradeService.GetInsideTradeTransactionsAsync(searchQuery);
         }        
     }
 }

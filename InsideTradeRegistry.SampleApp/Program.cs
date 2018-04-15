@@ -1,5 +1,4 @@
 ﻿using InsideTradeRegistry.Api;
-using System.Linq;
 
 namespace InsideTradeRegistry.SampleApp
 {
