@@ -57,7 +57,6 @@ namespace InsideTradeRegistry.Api
                 var dataLine = parsedData[i];
                 if(headerElements.Count != dataLine.Count)
                 {
-                    // TODO: is this needed? 
                     throw new InvalidTradeDataException("Unable to parse Finansinspektionen trade data. Header and data have different sizes.");
                 }
 
@@ -70,12 +69,6 @@ namespace InsideTradeRegistry.Api
 
         private TradeTransaction CreateTradeTransaction(IList<string> data, List<HeaderTypeMapping> mappings)
         {
-            if (data.Count != mappings.Count)
-            {
-                // TODO: is this needed?
-                throw new InvalidTradeDataException("Mappings and data have different sizes.");
-            }
-
             var transaction = new TradeTransaction();
             foreach (var mapping in mappings)
             {

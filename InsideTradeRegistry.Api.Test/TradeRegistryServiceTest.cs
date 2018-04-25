@@ -1,9 +1,11 @@
 ﻿using InsideTradeRegistry.Api.HttpClient;
+using InsideTradeRegistry.Api.Parser;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
 using System.Globalization;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -106,11 +108,11 @@ namespace InsideTradeRegistry.Api.Test
             var data = dataHeader + dataRow;
             var byteArrayData = Encoding.Unicode.GetBytes(data);
             httpClientMock.Setup(x => x.GetByteArrayAsync(It.IsAny<string>())).Returns(Task.FromResult<byte[]>(byteArrayData));
-            
+
             // Act & Assert
             try
             {
-                var transactions = await tradeHttpClient.GetInsideTradeTransactionsAsync(new SearchQuery());
+                await tradeHttpClient.GetInsideTradeTransactionsAsync(new SearchQuery());
             }
             catch (Exception ex)
             {
@@ -135,7 +137,7 @@ namespace InsideTradeRegistry.Api.Test
             // Act & Assert
             try
             {
-                var transactions = await tradeHttpClient.GetInsideTradeTransactionsAsync(new SearchQuery());
+                await tradeHttpClient.GetInsideTradeTransactionsAsync(new SearchQuery());
             }
             catch (Exception ex)
             {
@@ -147,12 +149,81 @@ namespace InsideTradeRegistry.Api.Test
         }
 
 
-        /*
-         TODO Add tests:
-          - Different length of data.
-          - Test bools separately. Since they cannot be distinguished.
-          - Wrong csv format..
-          - Connection problems.
-         */
+        [TestMethod]
+        [ExpectedException(typeof(ParseException))]
+        public async Task GivenBadlyFormattedCsvDataWhenFetchingTransactionsThenParseExceptionIsThrownAsync()
+        {
+            var dataHeader = "Issuer;Price;\r\n";
+            var badlyFormattedData = "Company;12.9\r\n";
+            var data = dataHeader + badlyFormattedData;
+            var byteArrayData = Encoding.Unicode.GetBytes(data);
+            httpClientMock.Setup(x => x.GetByteArrayAsync(It.IsAny<string>())).Returns(Task.FromResult<byte[]>(byteArrayData));
+            await tradeHttpClient.GetInsideTradeTransactionsAsync(new SearchQuery());
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidTradeDataException))]
+        public async Task GivenCsvHeaderAndCsvDataOfDifferentLengthsWhenFetchingTransactionsThenInvalidTradeDataExceptionIsThrownAsync()
+        {
+            var threeColHeader = "Issuer;Price;extra col;\r\n";
+            var twoColData = "Company;12.9;\r\n";
+            var data = threeColHeader + twoColData;
+            var byteArrayData = Encoding.Unicode.GetBytes(data);
+            httpClientMock.Setup(x => x.GetByteArrayAsync(It.IsAny<string>())).Returns(Task.FromResult<byte[]>(byteArrayData));
+            await tradeHttpClient.GetInsideTradeTransactionsAsync(new SearchQuery());
+        }
+
+        [TestMethod]
+        public async Task GivenCsvHeaderLabelsThatDoNotMatchPredefinedTypeMappingWhenFetchingTransactionsThenExistingTypeMappingsAreReturnedAsync()
+        {
+            var threeColHeader = "Random Col 1;Issuer;Random Col 2;Price;Random col 3;\r\n";
+            var twoColData = "Random data 1;Company;Random data 2;12.9;Random data 3;\r\n";
+            var data = threeColHeader + twoColData;
+            var byteArrayData = Encoding.Unicode.GetBytes(data);
+            httpClientMock.Setup(x => x.GetByteArrayAsync(It.IsAny<string>())).Returns(Task.FromResult<byte[]>(byteArrayData));
+            var transactions = await tradeHttpClient.GetInsideTradeTransactionsAsync(new SearchQuery());
+            Assert.AreEqual(1, transactions.Count);
+            var transaction = transactions.First();
+            Assert.AreEqual("Company", transaction.Issuer);
+            Assert.AreEqual(12.9, transaction.Price);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(HttpRequestException))]
+        public async Task GivenConnectionProblemWithExternalApiWhenFetchingTransactionsThenHttpRequestExceptionIsTrownAsync()
+        {
+            httpClientMock.Setup(x => x.GetByteArrayAsync(It.IsAny<string>())).Throws(new HttpRequestException("Unable to connect"));
+            var transactions = await tradeHttpClient.GetInsideTradeTransactionsAsync(new SearchQuery());
+        }
+
+        [TestMethod]
+        public async Task TestBooleanResponsesSeparatelyAsync()
+        {
+            // Tests boolean separately since they cannot otherwise be distinguished from each other
+            await SetupAndAssertBooleanResponseAsync(closelyAssociated: "Yes", amendment: "No", initialNotification: "No", shareOptionProgram:"No");
+            await SetupAndAssertBooleanResponseAsync(closelyAssociated: "No", amendment: "Yes", initialNotification: "No", shareOptionProgram: "No");
+            await SetupAndAssertBooleanResponseAsync(closelyAssociated: "No", amendment: "No", initialNotification: "Yes", shareOptionProgram: "No");
+            await SetupAndAssertBooleanResponseAsync(closelyAssociated: "No", amendment: "No", initialNotification: "No", shareOptionProgram: "Yes");  
+        }
+
+        private async Task SetupAndAssertBooleanResponseAsync(string closelyAssociated, string amendment, string initialNotification, string shareOptionProgram)
+        {
+            // Arrange
+            var dataHeader = "Closely associated;Amendment;Initial notification;Linked to share option programme;\r\n";
+            var dataRow = $"{closelyAssociated};{amendment};{initialNotification};{shareOptionProgram};";
+            var data = dataHeader + dataRow;
+            var byteArrayData = Encoding.Unicode.GetBytes(data);
+            httpClientMock.Setup(x => x.GetByteArrayAsync(It.IsAny<string>())).Returns(Task.FromResult<byte[]>(byteArrayData));
+
+            // Act
+            var transactions = await tradeHttpClient.GetInsideTradeTransactionsAsync(new SearchQuery());
+
+            // Assert
+            var transaction = transactions.Single();
+            Assert.AreEqual(closelyAssociated, transaction.CloselyAssociated);
+            Assert.AreEqual(amendment, transaction.Amendment);
+            Assert.AreEqual(initialNotification, transaction.InitialNotification);
+            Assert.AreEqual(shareOptionProgram, transaction.PartOfShareOptionProgramme);
+        }        
     }
 }
