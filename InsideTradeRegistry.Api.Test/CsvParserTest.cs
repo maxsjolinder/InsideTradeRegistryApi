@@ -3,6 +3,7 @@ using InsideTradeRegistry.Api.Parser;
 
 namespace InsideTradeRegistry.Api.Test
 {
+    [TestCategory("Unit test")]
     [TestClass]
     public class CsvParserTest
     {

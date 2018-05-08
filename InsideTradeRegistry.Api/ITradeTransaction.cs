@@ -34,7 +34,7 @@ namespace InsideTradeRegistry.Api
 
         DateTime TransactionDate { get; set; }
         
-        int Volume { get; set; }
+        double Volume { get; set; }
         
         string Unit { get; set; }
         

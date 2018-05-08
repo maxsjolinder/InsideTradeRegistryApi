@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace InsideTradeRegistry.Api.Test
 {
+    [TestCategory("Unit test")]
     [TestClass]
     public class TradeRegistryServiceTest
     {
@@ -45,7 +46,8 @@ namespace InsideTradeRegistry.Api.Test
             var isin = "123123";
             var transactionDateString = "14/12/2017 00:00:00";
             var transactionDate = ToDateTime(transactionDateString);
-            var volume = 5407;
+            var volume = 5407.8;
+            var volumeString = volume.ToString(CultureInfo.InvariantCulture);
             var unit = "Quantity";
             var price = 39.6;
             var priceString = price.ToString(CultureInfo.InvariantCulture);
@@ -54,7 +56,7 @@ namespace InsideTradeRegistry.Api.Test
             var status = "Current";
 
             var dataHeader = "Publication date;Issuer;LEI-code;Notifier;Person discharging managerial responsibilities;Position;Closely associated;Amendment;Details of amendment;Initial notification;Linked to share option programme;Nature of transaction;Instrument;ISIN;Transaction date;Volume;Unit;Price;Currency;Trading venue;Status;\r\n";
-            var dataRow = $"{pubDateString};{issuer};{lei};{notifier};{pdmr};{position};{closelyAssociated};{amendment};{amendmentDetails};{initialNotification};{shareOptionProgram};{natureOfTransaction};{instrument};{isin};{transactionDateString};{volume};{unit};{priceString};{currency};{tradingVenue};{status};";
+            var dataRow = $"{pubDateString};{issuer};{lei};{notifier};{pdmr};{position};{closelyAssociated};{amendment};{amendmentDetails};{initialNotification};{shareOptionProgram};{natureOfTransaction};{instrument};{isin};{transactionDateString};{volumeString};{unit};{priceString};{currency};{tradingVenue};{status};";
             var data = dataHeader + dataRow;
             var byteArrayData = Encoding.Unicode.GetBytes(data);
             httpClientMock.Setup(x => x.GetByteArrayAsync(It.IsAny<string>())).Returns(Task.FromResult<byte[]>(byteArrayData));

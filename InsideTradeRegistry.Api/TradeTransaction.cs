@@ -49,8 +49,8 @@ namespace InsideTradeRegistry.Api
         [DataColumn(Name = "Transaction date", CultureToUse = "en-GB")]
         public DateTime TransactionDate { get; set; }
 
-        [DataColumn(Name = "Volume")]
-        public int Volume { get; set; }
+        [DataColumn(Name = "Volume", CultureToUse = "en-GB")]
+        public double Volume { get; set; }
 
         [DataColumn(Name = "Unit")]
         public string Unit { get; set; }
