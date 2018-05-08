@@ -35,11 +35,11 @@ namespace InsideTradeRegistry.Api
 
             return await GetTransationsAsync(url);
         }
-        
+
         private async Task<IList<ITradeTransaction>> GetTransationsAsync(string url)
         {
             var byteArray = await httpClient.GetByteArrayAsync(url);
-            var unicodeString = Encoding.Unicode.GetString(byteArray);            
+            var unicodeString = Encoding.Unicode.GetString(byteArray);
             var parsedData = csvParser.ParseData(unicodeString);
 
             if (parsedData.Count() < 2)
@@ -55,7 +55,7 @@ namespace InsideTradeRegistry.Api
             for (int i = 1; i < parsedData.Count(); i++)
             {
                 var dataLine = parsedData[i];
-                if(headerElements.Count != dataLine.Count)
+                if (headerElements.Count != dataLine.Count)
                 {
                     throw new InvalidTradeDataException("Unable to parse Finansinspektionen trade data. Header and data have different sizes.");
                 }
@@ -74,7 +74,7 @@ namespace InsideTradeRegistry.Api
             {
                 var dataAsString = data[mapping.ColumnIndex];
                 try
-                {                 
+                {
                     var typedData = Convert.ChangeType(dataAsString, mapping.PropertyInfo.PropertyType, mapping.FormatProvider);
                     mapping.PropertyInfo.SetValue(transaction, typedData);
                 }
@@ -82,7 +82,7 @@ namespace InsideTradeRegistry.Api
                 {
                     if (ex is InvalidCastException || ex is FormatException)
                     {
-                        throw new InvalidTradeDataException($"Unable to convert string value \"{dataAsString}\" into {mapping.PropertyInfo.PropertyType} type.", ex);
+                        throw new InvalidTradeDataException($"Unable to convert string value \"{dataAsString}\" into {mapping.PropertyInfo.PropertyType} type on property \"{mapping.PropertyInfo.Name}\".", ex);
                     }
 
                     throw;
@@ -127,17 +127,28 @@ namespace InsideTradeRegistry.Api
 
         private string GetCsvUrl(SearchQuery searchQuery)
         {
-            var issuer = "";
-            var person = "";
-
-            if (!searchQuery.PerformFullSearch)
-            {
-                issuer = searchQuery.Issuer.Trim().Replace(' ', '+');
-                person = searchQuery.Person.Trim().Replace(' ', '+');
-            }
-
-            var customUrl = $"https://marknadssok.fi.se/publiceringsklient/en-GB/Search/Search?SearchFunctionType=Insyn&Utgivare={issuer}&PersonILedandeSt%C3%A4llningNamn={person}&Transaktionsdatum.From=&Transaktionsdatum.To=&Publiceringsdatum.From=&Publiceringsdatum.To=&button=export&Page=1";
+            var issuer = searchQuery.Issuer?.Trim().Replace(' ', '+') ?? "";
+            var person = searchQuery.PDMRPerson?.Trim().Replace(' ', '+') ?? "";            
+            var transactionDateFromStr =  ToUrlString(searchQuery.TransactionDateFrom);
+            var transactionDateToStr = ToUrlString(searchQuery.TransactionDateTo);
+            var publicationDateFromStr = ToUrlString(searchQuery.PublicationDateFrom);
+            var publicationDateToStr = ToUrlString(searchQuery.PublicationDateTo);
+            
+            var customUrl = $"https://marknadssok.fi.se/publiceringsklient/en-GB/Search/Search?SearchFunctionType=Insyn&Utgivare={issuer}&PersonILedandeSt%C3%A4llningNamn={person}&Transaktionsdatum.From={transactionDateFromStr}&Transaktionsdatum.To={transactionDateToStr}&Publiceringsdatum.From={publicationDateFromStr}&Publiceringsdatum.To={publicationDateToStr}&button=export&Page=1";
             return customUrl;
+        }
+
+        private string ToUrlString(DateTime date)
+        {
+            if(date == default(DateTime))
+            {
+                return "";
+            }
+            else
+            {
+                var formatString = "dd'%2F'MM'%2F'yyyy";
+                return date.ToString(formatString);
+            }
         }
     }
 }
