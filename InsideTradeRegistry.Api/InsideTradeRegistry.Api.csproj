@@ -2,6 +2,17 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>0.0.6</Version>
+    <Authors>Max Sjolinder</Authors>
+    <Company />
+    <PackageId>NorthernLight.InsideTradeRegistry.Api</PackageId>
+    <Description>Offers a API towards the Swedish registry of transactions by Persons Discharging Managerial Responsibilities (PDMRs) provided by Finansinspektionen (the Swedish Financial Supervisory Authority).</Description>
+    <NeutralLanguage />
+    <Copyright>Copyright (c) 2018 Max Sjolinder</Copyright>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/maxsjolinder/InsideTradeRegistryApi/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/maxsjolinder/InsideTradeRegistryApi</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/maxsjolinder/InsideTradeRegistryApi</RepositoryUrl>
+    <PackageTags>Finansinspektionen stocks PDMR</PackageTags>
   </PropertyGroup>
 
 </Project>

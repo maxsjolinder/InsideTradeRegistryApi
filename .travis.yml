@@ -3,6 +3,11 @@ solution: InsideTradeRegistry.sln
 mono: none
 dotnet: 2.1.4
 script:
- - dotnet build
- - dotnet test InsideTradeRegistry.Api.Test/
-
+ - dotnet build -c Release
+ - dotnet test InsideTradeRegistry.Api.Test/ -c Release
+deploy:
+ skip_cleanup: true
+ provider: script
+ script: bash upload_nuget.sh 
+ on:
+   branch: deploy_nuget
