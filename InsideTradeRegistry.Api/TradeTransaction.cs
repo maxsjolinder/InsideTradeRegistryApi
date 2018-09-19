@@ -40,8 +40,12 @@ namespace InsideTradeRegistry.Api
         [DataColumn(Name = "Nature of transaction")]
         public string NatureOfTransaction { get; set; }
 
-        [DataColumn(Name = "Instrument")]
-        public string Instrument { get; set; }
+        [DataColumn(Name = "Instrument name")]
+        public string InstrumentName { get; set; }
+
+        // Note: The column is misspelled by Finansinspektionen
+        [DataColumn(Name = "Intrument type")]
+        public string InstrumentType { get; set; }
 
         [DataColumn(Name = "ISIN")]
         public string ISIN { get; set; }

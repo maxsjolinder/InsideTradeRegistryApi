@@ -42,7 +42,8 @@ namespace InsideTradeRegistry.Api.Test
             var initialNotification = "Yes";
             var shareOptionProgram = "Yes";
             var natureOfTransaction = "Acquisition";
-            var instrument = "Company AB";
+            var instrumentName = "Company AB";
+            var instrumentType = "Instrument type";
             var isin = "123123";
             var transactionDateString = "14/12/2017 00:00:00";
             var transactionDate = ToDateTime(transactionDateString);
@@ -55,8 +56,8 @@ namespace InsideTradeRegistry.Api.Test
             var tradingVenue = "NASDAQ STOCKHOLM AB";
             var status = "Current";
 
-            var dataHeader = "Publication date;Issuer;LEI-code;Notifier;Person discharging managerial responsibilities;Position;Closely associated;Amendment;Details of amendment;Initial notification;Linked to share option programme;Nature of transaction;Instrument;ISIN;Transaction date;Volume;Unit;Price;Currency;Trading venue;Status;\r\n";
-            var dataRow = $"{pubDateString};{issuer};{lei};{notifier};{pdmr};{position};{closelyAssociated};{amendment};{amendmentDetails};{initialNotification};{shareOptionProgram};{natureOfTransaction};{instrument};{isin};{transactionDateString};{volumeString};{unit};{priceString};{currency};{tradingVenue};{status};";
+            var dataHeader = "Publication date;Issuer;LEI-code;Notifier;Person discharging managerial responsibilities;Position;Closely associated;Amendment;Details of amendment;Initial notification;Linked to share option programme;Nature of transaction;Intrument type;Instrument name;ISIN;Transaction date;Volume;Unit;Price;Currency;Trading venue;Status;\r\n";
+            var dataRow = $"{pubDateString};{issuer};{lei};{notifier};{pdmr};{position};{closelyAssociated};{amendment};{amendmentDetails};{initialNotification};{shareOptionProgram};{natureOfTransaction};{instrumentType};{instrumentName};{isin};{transactionDateString};{volumeString};{unit};{priceString};{currency};{tradingVenue};{status};";
             var data = dataHeader + dataRow;
             var byteArrayData = Encoding.Unicode.GetBytes(data);
             httpClientMock.Setup(x => x.GetByteArrayAsync(It.IsAny<string>())).Returns(Task.FromResult<byte[]>(byteArrayData));
@@ -80,7 +81,8 @@ namespace InsideTradeRegistry.Api.Test
             Assert.AreEqual(initialNotification, trans.InitialNotification);
             Assert.AreEqual(shareOptionProgram, trans.PartOfShareOptionProgramme);
             Assert.AreEqual(natureOfTransaction, trans.NatureOfTransaction);
-            Assert.AreEqual(instrument, trans.Instrument);
+            Assert.AreEqual(instrumentName, trans.InstrumentName);
+            Assert.AreEqual(instrumentType, trans.InstrumentType);
             Assert.AreEqual(isin, trans.ISIN);
             Assert.AreEqual(transactionDate, trans.TransactionDate);
             Assert.AreEqual(volume, trans.Volume);

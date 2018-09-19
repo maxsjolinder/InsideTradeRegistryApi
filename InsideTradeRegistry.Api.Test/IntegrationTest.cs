@@ -2,6 +2,7 @@
 using System;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace InsideTradeRegistry.Api.Test
@@ -35,7 +36,8 @@ namespace InsideTradeRegistry.Api.Test
             Assert.AreEqual("Yes", transaction.InitialNotification);
             Assert.AreEqual("", transaction.PartOfShareOptionProgramme);
             Assert.AreEqual("Acquisition", transaction.NatureOfTransaction);
-            Assert.AreEqual("Hexagon AB Företagscertifikat", transaction.Instrument);
+            Assert.AreEqual("Hexagon AB Företagscertifikat", transaction.InstrumentName);
+            Assert.AreEqual("", transaction.InstrumentType);
             Assert.AreEqual("SE0008613608", transaction.ISIN);
             Assert.AreEqual(ToDateTime("2016-07-04 00:00:00"), transaction.TransactionDate);
             Assert.AreEqual(649833931, transaction.Volume);
@@ -55,6 +57,25 @@ namespace InsideTradeRegistry.Api.Test
                 PublicationDateFrom = DateTime.Now.AddDays(-15)
             });
             Assert.AreNotEqual(0, transactions.Count);
+        }
+
+        [TestMethod]
+        public async Task InsideTradeRegistryApiShouldRetrieveAllAvailableDataAsync()
+        {
+            var url = "https://marknadssok.fi.se/publiceringsklient/en-GB/Search/Search?SearchFunctionType=Insyn&Utgivare=Essity+ab&PersonILedandeSt%C3%A4llningNamn=&Transaktionsdatum.From=&Transaktionsdatum.To=&Publiceringsdatum.From=21%2F02%2F2017&Publiceringsdatum.To=15%2F06%2F2017&button=export&Page=1";
+            var httpClient = new System.Net.Http.HttpClient();
+            var byteArray = await httpClient.GetByteArrayAsync(url);
+            var unicodeString = Encoding.Unicode.GetString(byteArray);
+
+            // Contains an extra blank row
+            var rows = unicodeString.Split("\r\n");
+            Assert.AreEqual(7, rows.Count());
+
+            // Contains an extra blank column
+            var headerColumns = rows[0].Split(";");
+
+            var transactionInterfaceProperties = typeof(ITradeTransaction).GetProperties();
+            Assert.AreEqual(headerColumns.Count() - 1, transactionInterfaceProperties.Count(), "InsideTradeRegistryApi does not retrieve all available data. Most likely Finansinspektionen has updated their api.");
         }
 
         private DateTime ToDateTime(string dateTimeString)

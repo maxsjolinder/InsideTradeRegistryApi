@@ -28,8 +28,10 @@ namespace InsideTradeRegistry.Api
         
         string NatureOfTransaction { get; set; }
         
-        string Instrument { get; set; }
-        
+        string InstrumentName { get; set; }
+
+        string InstrumentType { get; set; }
+
         string ISIN { get; set; }
 
         DateTime TransactionDate { get; set; }
