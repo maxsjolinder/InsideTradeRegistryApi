@@ -16,15 +16,15 @@ namespace InsideTradeRegistry.Api
         
         string Position { get; set; }
         
-        string CloselyAssociated { get; set; }
+        bool CloselyAssociated { get; set; }
         
-        string Amendment { get; set; }
+        bool Amendment { get; set; }
         
         string DetailsOfAmendment { get; set; }
         
-        string InitialNotification { get; set; }
+        bool InitialNotification { get; set; }
         
-        string PartOfShareOptionProgramme { get; set; }
+        bool PartOfShareOptionProgramme { get; set; }
         
         string NatureOfTransaction { get; set; }
         

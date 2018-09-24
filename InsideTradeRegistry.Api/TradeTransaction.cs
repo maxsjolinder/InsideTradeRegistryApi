@@ -5,37 +5,37 @@ namespace InsideTradeRegistry.Api
     public class TradeTransaction : ITradeTransaction
     {
         [DataColumn(Name = "Publication date", CultureToUse = "en-GB")]
-        public DateTime PublicationDate {get;set;}
+        public DateTime PublicationDate { get; set; }
 
         [DataColumn(Name = "Issuer")]
-        public string Issuer {get;set;}
+        public string Issuer { get; set; }
 
         [DataColumn(Name = "LEI-code")]
         public string LEICode { get; set; }
 
         [DataColumn(Name = "Notifier")]
         public string Notifier { get; set; }
-        
+
         [DataColumn(Name = "Person discharging managerial responsibilities")]
         public string Person { get; set; }
 
         [DataColumn(Name = "Position")]
         public string Position { get; set; }
 
-        [DataColumn(Name = "Closely associated")]
-        public string CloselyAssociated { get; set; }
+        [DataColumnBoolean(Name = "Closely associated", TrueStrings = new string[] { "Yes", "True"}, FalseStrings = new string[] { "" })]
+        public bool CloselyAssociated { get; set; }
 
-        [DataColumn(Name = "Amendment")]
-        public string Amendment { get; set; }
+        [DataColumnBoolean(Name = "Amendment", TrueStrings = new string[] { "Yes", "True" }, FalseStrings = new string[] { "" })]
+        public bool Amendment { get; set; }
 
         [DataColumn(Name = "Details of amendment")]
         public string DetailsOfAmendment { get; set; }
 
-        [DataColumn(Name = "Initial notification")]
-        public string InitialNotification { get; set; }
+        [DataColumnBoolean(Name = "Initial notification", TrueStrings = new string[] { "Yes", "True" }, FalseStrings = new string[] { "" })]
+        public bool InitialNotification { get; set; }
 
-        [DataColumn(Name = "Linked to share option programme")]
-        public string PartOfShareOptionProgramme { get; set; }
+        [DataColumnBoolean(Name = "Linked to share option programme", TrueStrings = new string[] { "Yes", "True" }, FalseStrings = new string[] { "" })]
+        public bool PartOfShareOptionProgramme { get; set; }
 
         [DataColumn(Name = "Nature of transaction")]
         public string NatureOfTransaction { get; set; }

@@ -30,11 +30,11 @@ namespace InsideTradeRegistry.Api.Test
             Assert.AreEqual("Melker Schörling AB", transaction.Notifier);
             Assert.AreEqual("Melker Schörling", transaction.Person);
             Assert.AreEqual("Styrelseledamot/suppleant", transaction.Position);
-            Assert.AreEqual("Yes", transaction.CloselyAssociated);
-            Assert.AreEqual("", transaction.Amendment);
+            Assert.IsTrue(transaction.CloselyAssociated);
+            Assert.IsFalse(transaction.Amendment);
             Assert.AreEqual("", transaction.DetailsOfAmendment);
-            Assert.AreEqual("Yes", transaction.InitialNotification);
-            Assert.AreEqual("", transaction.PartOfShareOptionProgramme);
+            Assert.IsTrue(transaction.InitialNotification);
+            Assert.IsFalse(transaction.PartOfShareOptionProgramme);
             Assert.AreEqual("Acquisition", transaction.NatureOfTransaction);
             Assert.AreEqual("Hexagon AB Företagscertifikat", transaction.InstrumentName);
             Assert.AreEqual("", transaction.InstrumentType);

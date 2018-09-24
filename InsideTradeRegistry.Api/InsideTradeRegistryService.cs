@@ -19,6 +19,8 @@ namespace InsideTradeRegistry.Api
             public string HeaderText { get; set; }
             public int ColumnIndex { get; set; }
             public IFormatProvider FormatProvider { get; set; }
+
+            public Func<string, Type, IFormatProvider, object> ConvertToType { get; set; }
         }
         private static IInsideTradeRegistryHttpClient httpClient;
         private IParser csvParser;
@@ -75,7 +77,7 @@ namespace InsideTradeRegistry.Api
                 var dataAsString = data[mapping.ColumnIndex];
                 try
                 {
-                    var typedData = Convert.ChangeType(dataAsString, mapping.PropertyInfo.PropertyType, mapping.FormatProvider);
+                    var typedData = mapping.ConvertToType(dataAsString, mapping.PropertyInfo.PropertyType, mapping.FormatProvider);
                     mapping.PropertyInfo.SetValue(transaction, typedData);
                 }
                 catch (Exception ex)
@@ -117,7 +119,8 @@ namespace InsideTradeRegistry.Api
                         HeaderText = header,
                         PropertyInfo = propertyInfo,
                         ColumnIndex = colIndex,
-                        FormatProvider = formatProvider
+                        FormatProvider = formatProvider,
+                        ConvertToType = propertyInfo.GetCustomAttribute<DataColumnAttribute>().ConvertStringToType
                     });
                 }
             }
@@ -128,19 +131,19 @@ namespace InsideTradeRegistry.Api
         private string GetCsvUrl(SearchQuery searchQuery)
         {
             var issuer = searchQuery.Issuer?.Trim().Replace(' ', '+') ?? "";
-            var person = searchQuery.PDMRPerson?.Trim().Replace(' ', '+') ?? "";            
-            var transactionDateFromStr =  ToUrlString(searchQuery.TransactionDateFrom);
+            var person = searchQuery.PDMRPerson?.Trim().Replace(' ', '+') ?? "";
+            var transactionDateFromStr = ToUrlString(searchQuery.TransactionDateFrom);
             var transactionDateToStr = ToUrlString(searchQuery.TransactionDateTo);
             var publicationDateFromStr = ToUrlString(searchQuery.PublicationDateFrom);
             var publicationDateToStr = ToUrlString(searchQuery.PublicationDateTo);
-            
+
             var customUrl = $"https://marknadssok.fi.se/publiceringsklient/en-GB/Search/Search?SearchFunctionType=Insyn&Utgivare={issuer}&PersonILedandeSt%C3%A4llningNamn={person}&Transaktionsdatum.From={transactionDateFromStr}&Transaktionsdatum.To={transactionDateToStr}&Publiceringsdatum.From={publicationDateFromStr}&Publiceringsdatum.To={publicationDateToStr}&button=export&Page=1";
             return customUrl;
         }
 
         private string ToUrlString(DateTime date)
         {
-            if(date == default(DateTime))
+            if (date == default(DateTime))
             {
                 return "";
             }

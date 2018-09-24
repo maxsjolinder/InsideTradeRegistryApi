@@ -75,11 +75,11 @@ namespace InsideTradeRegistry.Api.Test
             Assert.AreEqual(notifier, trans.Notifier);
             Assert.AreEqual(pdmr, trans.Person);
             Assert.AreEqual(position, trans.Position);
-            Assert.AreEqual(closelyAssociated, trans.CloselyAssociated);
-            Assert.AreEqual(amendment, trans.Amendment);
+            Assert.IsTrue(trans.CloselyAssociated);
+            Assert.IsTrue(trans.Amendment);
             Assert.AreEqual(amendmentDetails, trans.DetailsOfAmendment);
-            Assert.AreEqual(initialNotification, trans.InitialNotification);
-            Assert.AreEqual(shareOptionProgram, trans.PartOfShareOptionProgramme);
+            Assert.IsTrue(trans.InitialNotification);
+            Assert.IsTrue(trans.PartOfShareOptionProgramme);
             Assert.AreEqual(natureOfTransaction, trans.NatureOfTransaction);
             Assert.AreEqual(instrumentName, trans.InstrumentName);
             Assert.AreEqual(instrumentType, trans.InstrumentType);
@@ -204,10 +204,10 @@ namespace InsideTradeRegistry.Api.Test
         public async Task TestBooleanResponsesSeparatelyAsync()
         {
             // Tests boolean separately since they cannot otherwise be distinguished from each other
-            await SetupAndAssertBooleanResponseAsync(closelyAssociated: "Yes", amendment: "No", initialNotification: "No", shareOptionProgram:"No");
-            await SetupAndAssertBooleanResponseAsync(closelyAssociated: "No", amendment: "Yes", initialNotification: "No", shareOptionProgram: "No");
-            await SetupAndAssertBooleanResponseAsync(closelyAssociated: "No", amendment: "No", initialNotification: "Yes", shareOptionProgram: "No");
-            await SetupAndAssertBooleanResponseAsync(closelyAssociated: "No", amendment: "No", initialNotification: "No", shareOptionProgram: "Yes");  
+            await SetupAndAssertBooleanResponseAsync(closelyAssociated: "Yes", amendment: "", initialNotification: "", shareOptionProgram:"");
+            await SetupAndAssertBooleanResponseAsync(closelyAssociated: "", amendment: "Yes", initialNotification: "", shareOptionProgram: "");
+            await SetupAndAssertBooleanResponseAsync(closelyAssociated: "", amendment: "", initialNotification: "Yes", shareOptionProgram: "");
+            await SetupAndAssertBooleanResponseAsync(closelyAssociated: "", amendment: "", initialNotification: "", shareOptionProgram: "Yes");  
         }
 
         private async Task SetupAndAssertBooleanResponseAsync(string closelyAssociated, string amendment, string initialNotification, string shareOptionProgram)
@@ -224,10 +224,26 @@ namespace InsideTradeRegistry.Api.Test
 
             // Assert
             var transaction = transactions.Single();
-            Assert.AreEqual(closelyAssociated, transaction.CloselyAssociated);
-            Assert.AreEqual(amendment, transaction.Amendment);
-            Assert.AreEqual(initialNotification, transaction.InitialNotification);
-            Assert.AreEqual(shareOptionProgram, transaction.PartOfShareOptionProgramme);
+            Assert.AreEqual(YesNoStringToBool(closelyAssociated), transaction.CloselyAssociated);
+            Assert.AreEqual(YesNoStringToBool(amendment), transaction.Amendment);
+            Assert.AreEqual(YesNoStringToBool(initialNotification), transaction.InitialNotification);
+            Assert.AreEqual(YesNoStringToBool(shareOptionProgram), transaction.PartOfShareOptionProgramme);
         }        
+
+        private static bool YesNoStringToBool(string yesNoString)
+        {
+            if (yesNoString.ToLower() == "yes")
+            {
+                return true;
+            }
+            else if (yesNoString == "")
+            {
+                return false;
+            }
+            else
+            {
+                throw new ArgumentException($"Illegal argument {yesNoString}");
+            }
+        }
     }
 }
