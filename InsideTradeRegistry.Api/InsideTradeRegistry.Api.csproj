@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <Version>0.0.8</Version>
+    <Version>0.0.9</Version>
     <Authors>Max Sjolinder</Authors>
     <Company />
     <PackageId>NorthernLight.InsideTradeRegistry.Api</PackageId>
