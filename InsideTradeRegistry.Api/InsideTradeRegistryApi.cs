@@ -6,7 +6,7 @@ namespace InsideTradeRegistry.Api
 {
     public class InsideTradeRegistryApi : IInsideTradeRegistryApi
     {
-        private InsideTradeRegistryService insideTradeService;
+        private readonly InsideTradeRegistryService insideTradeService;
 
         public InsideTradeRegistryApi()
         {

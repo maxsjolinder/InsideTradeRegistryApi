@@ -23,7 +23,7 @@ namespace InsideTradeRegistry.Api
             public Func<string, Type, IFormatProvider, object> ConvertToType { get; set; }
         }
         private static IInsideTradeRegistryHttpClient httpClient;
-        private IParser csvParser;
+        private readonly IParser csvParser;
 
         internal InsideTradeRegistryService(IInsideTradeRegistryHttpClient client)
         {
@@ -143,7 +143,7 @@ namespace InsideTradeRegistry.Api
 
         private string ToUrlString(DateTime date)
         {
-            if (date == default(DateTime))
+            if (date == default)
             {
                 return "";
             }

@@ -5,7 +5,7 @@ namespace InsideTradeRegistry.SampleApp
 {
     class Program
     {
-        static  void Main(string[] args)
+        static void Main()
         {           
             IInsideTradeRegistryApi api = new InsideTradeRegistryApi();
 

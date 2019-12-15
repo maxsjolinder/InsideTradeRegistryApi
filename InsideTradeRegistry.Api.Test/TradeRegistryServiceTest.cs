@@ -97,8 +97,7 @@ namespace InsideTradeRegistry.Api.Test
         private static DateTime ToDateTime(string apiDateString)
         {
             var apiFormat = "dd/MM/yyyy H:mm:ss";
-            DateTime result;
-            Assert.IsTrue(DateTime.TryParseExact(apiDateString, apiFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out result));
+            Assert.IsTrue(DateTime.TryParseExact(apiDateString, apiFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime result));
             return result;
         }
 
